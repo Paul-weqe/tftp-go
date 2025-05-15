@@ -13,10 +13,10 @@ import (
 )
 
 type ServerDetails struct {
-	ipAddress net.IP
-	port      uint16
-	fileName  string
-	mode      string
+	IPAddress net.IP
+	Port      uint16
+	FileName  string
+	Mode      string
 }
 
 func getServerDetails(server *ServerDetails) error {
@@ -26,20 +26,20 @@ func getServerDetails(server *ServerDetails) error {
 	var ip string
 	fmt.Scan(&ip)
 
-	server.ipAddress = net.ParseIP(ip)
-	if server.ipAddress == nil {
+	server.IPAddress = net.ParseIP(ip)
+	if server.IPAddress == nil {
 		return errors.New("Invalid IP Address")
 	}
 	fmt.Printf("Port Number: ")
-	fmt.Scan(&server.port)
+	fmt.Scan(&server.Port)
 
 	fmt.Printf("Filename: ")
-	fmt.Scan(&server.fileName)
+	fmt.Scan(&server.FileName)
 
 	fmt.Printf("Mode[octet/netascii]: ")
-	fmt.Scan(&server.mode)
+	fmt.Scan(&server.Mode)
 
-	if (server.mode != "octet") && (server.mode != "netascii") {
+	if (server.Mode != "octet") && (server.Mode != "netascii") {
 		return errors.New(
 			"Invalid modes. Only valid modes: [octet, netascii]",
 		)
@@ -62,13 +62,13 @@ func runClient() {
 		fmt.Println("Error: ", getServerErr)
 	}
 
-	octets := serverDetails.ipAddress.To4()
+	octets := serverDetails.IPAddress.To4()
 	if octets == nil {
 		fmt.Println("Currently only supports IPv4 addresses")
 	}
 
 	sa := syscall.SockaddrInet4{
-		Port: int(serverDetails.port),
+		Port: int(serverDetails.Port),
 		Addr: [4]byte(octets),
 	}
 
@@ -84,14 +84,14 @@ func runClient() {
 	buffer = append(buffer, 01)
 
 	// Add filename to packet.
-	for i, _ := range serverDetails.fileName {
-		buffer = append(buffer, serverDetails.fileName[i])
+	for i, _ := range serverDetails.FileName {
+		buffer = append(buffer, serverDetails.FileName[i])
 	}
 	buffer = append(buffer, 0)
 
 	// Add Mode to packet details.
-	for i, _ := range serverDetails.mode {
-		buffer = append(buffer, serverDetails.mode[i])
+	for i, _ := range serverDetails.Mode {
+		buffer = append(buffer, serverDetails.Mode[i])
 	}
 	buffer = append(buffer, 0)
 
@@ -104,7 +104,7 @@ func runClient() {
 	var dataSize uint16 = 512
 	fmt.Println("Fetching file...")
 
-	file, fileErr := os.Create(serverDetails.fileName)
+	file, fileErr := os.Create(serverDetails.FileName)
 	if fileErr != nil {
 		fmt.Println("File creation error: ", fileErr)
 		return
